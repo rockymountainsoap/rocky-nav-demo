@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rocky — Nav: Shop + Discover</title>
+<style>
+  @font-face{
+    font-family:'AptaPro';
+    src:url('RockyAptaPro-Var.woff2') format('woff2'), url('RockyAptaPro-Var.woff') format('woff');
+    font-weight:100 900;font-style:normal;font-display:swap;
+  }
+  :root{
+    --olive:#4B5739;
+    --olive-deep:#3E4930;
+    --cream:#F4EFE4;
+    --cream-2:#ECE4D4;
+    --ink:#2C2A24;
+    --muted:#75705F;
+    --line:#E0D7C5;
+    --accent:#B0623F;
+    --sans:'AptaPro',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;
+    --shadow:0 18px 44px -22px rgba(46,52,38,.5);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:var(--sans);color:var(--ink);background:var(--cream);-webkit-font-smoothing:antialiased;line-height:1.45;}
+  body.no-scroll{overflow:hidden;}
+  a{color:inherit;text-decoration:none;}
+  img{display:block;max-width:100%;}
+  button{font-family:inherit;}
+
+  /* ---------------- Announcement ---------------- */
+  .announce{background:var(--olive);color:#F2EEE4;text-align:center;
+    font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;padding:9px 16px;font-weight:500;}
+
+  /* ---------------- Desktop header ---------------- */
+  header.desk{position:sticky;top:0;z-index:60;background:var(--cream);}
+  .desk .bar{display:flex;align-items:center;justify-content:space-between;padding:20px 36px;gap:24px;}
+
+  /* primary nav (Shop / Discover) */
+  .nav{display:flex;align-items:center;gap:28px;}
+  .navitem{display:flex;align-items:center;padding:20px 0;margin:-20px 0;}
+  .navlink{font-size:14px;font-weight:450;letter-spacing:.01em;color:var(--ink);cursor:pointer;
+    background:none;border:0;padding:0;position:relative;font-family:var(--sans);display:inline-flex;align-items:center;gap:6px;}
+  .navlink .chev{transition:transform .2s ease;}
+  .has-mega:hover .navlink .chev{transform:rotate(180deg);}
+  .navlink::after{content:"";position:absolute;left:0;right:0;bottom:-5px;height:1px;background:currentColor;
+    transform:scaleX(0);transform-origin:left;transition:transform .2s ease;}
+  .navlink:hover::after, .has-mega:hover .navlink::after{transform:scaleX(1);}
+  .navlink.active{color:var(--olive);}
+  .navlink.active::after{transform:scaleX(1);background:var(--olive);}
+
+  /* right-side utilities */
+  .nav-right{display:flex;align-items:center;gap:20px;}
+  .nav-right .region{font-size:12.5px;letter-spacing:.04em;color:var(--ink);background:none;border:0;
+    cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);}
+  .nav-right .util-link{font-size:13px;}
+  .nav-right .util-link:hover{text-decoration:underline;text-underline-offset:3px;}
+  .nav-right .icons{display:flex;align-items:center;gap:16px;}
+  .ico{display:grid;place-items:center;background:none;border:0;cursor:pointer;color:var(--ink);position:relative;}
+  .ico:hover{opacity:.6;}
+  .cart-count{position:absolute;top:-7px;right:-8px;background:var(--accent);color:#fff;font-size:10px;font-weight:600;
+    min-width:16px;height:16px;border-radius:8px;display:grid;place-items:center;padding:0 4px;}
+
+  /* ---------------- Mega menus ---------------- */
+  .has-mega{position:static;}
+  .mega{position:absolute;left:0;right:0;top:100%;background:var(--cream);border-top:1px solid var(--line);
+    box-shadow:var(--shadow);opacity:0;visibility:hidden;transform:translateY(-8px);
+    transition:opacity .2s ease,transform .2s ease,visibility .2s;z-index:55;}
+  .has-mega:hover .mega, .has-mega:focus-within .mega{opacity:1;visibility:visible;transform:translateY(0);}
+
+  /* Discover layout: single column + images */
+  .mega.discover .mega-inner{display:grid;grid-template-columns:minmax(220px,320px) 1fr;
+    column-gap:48px;padding:40px 40px 56px 44px;}
+  .m-col{display:flex;flex-direction:column;gap:16px;align-items:flex-start;}
+  .m-col a{font-size:15px;color:var(--ink);}
+  .m-col a:first-child{font-weight:600;}
+  .m-col a:hover{color:var(--olive);text-decoration:underline;text-underline-offset:3px;}
+
+  /* Shop layout: quick links + concern + category groups + image */
+  .mega.shop .mega-inner{display:grid;grid-template-columns:auto auto 1fr;
+    column-gap:36px;padding:40px 40px 52px 44px;}
+  .col1{display:flex;flex-direction:column;align-items:flex-start;}
+  .mega.shop .col1{padding-right:32px;border-right:1px solid var(--line);}
+  .quicklinks{display:flex;flex-direction:column;gap:13px;align-items:flex-start;}
+  .quicklinks a{font-weight:600;font-size:15px;color:var(--ink);}
+  .quicklinks a:hover{color:var(--olive);text-decoration:underline;text-underline-offset:3px;}
+  .m-label{font-size:12px;letter-spacing:.04em;color:var(--ink);background:var(--cream-2);padding:4px 10px;margin-top:20px;}
+  .concern{display:flex;flex-direction:column;gap:11px;align-items:flex-start;margin-top:13px;}
+  .concern a{font-size:14.5px;color:var(--ink);}
+  .concern a:hover{color:var(--olive);text-decoration:underline;text-underline-offset:3px;}
+
+  .cat-groups{display:flex;gap:40px;align-items:flex-start;}
+  .cat-col{display:flex;flex-direction:column;gap:30px;min-width:146px;}
+  .cat-group h5{margin:0 0 14px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--olive);font-weight:600;}
+  .cat-group h5 a:hover{text-decoration:underline;text-underline-offset:3px;}
+  .cat-group ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px;}
+  .cat-group a{font-size:14.5px;color:var(--ink);}
+  .cat-group a:hover{color:var(--olive);text-decoration:underline;text-underline-offset:3px;}
+
+  /* editorial / shopping card tiles (mega menu + mobile) */
+  .m-imgs{justify-self:end;align-self:start;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:12px;}
+  .ed-img{position:relative;width:clamp(235px,18vw,290px);aspect-ratio:1;overflow:hidden;
+    background:var(--cream-2);display:block;}
+  .ed-img img{width:100%;height:100%;object-fit:cover;transition:transform .65s cubic-bezier(.2,.6,.2,1);}
+  .ed-img:hover img{transform:scale(1.05);}
+  .ed-cap{position:absolute;inset:auto 0 0 0;display:flex;flex-direction:column;gap:8px;padding:18px 18px 20px;
+    color:#F6F2E9;background:linear-gradient(to top,rgba(34,40,28,.84),rgba(34,40,28,.14) 58%,transparent);}
+  .ed-cap .t{font-size:18.5px;font-weight:600;line-height:1.12;}
+  .ed-cap .c{font-size:11px;letter-spacing:.14em;text-transform:uppercase;display:inline-flex;align-items:center;gap:7px;}
+  .ed-cap .c::after{content:"→";font-size:13px;letter-spacing:0;transition:transform .2s ease;}
+  .ed-img:hover .ed-cap .c::after{transform:translateX(4px);}
+
+  /* ---------------- Page / PLP ---------------- */
+  main{padding-bottom:60px;}
+  .wrap{padding:22px 36px 0;}
+  .hero{position:relative;}
+  .hero-img{width:100%;height:560px;object-fit:cover;}
+  .hero .logo{position:absolute;top:26px;left:30px;width:min(34vw,400px);height:auto;}
+  .caption{padding:16px 2px 0;}
+  .caption .name{font-weight:600;font-size:15px;}
+  .caption .price{font-size:14px;color:var(--ink);margin-top:4px;}
+
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px;padding:46px 36px 0;}
+  .card{cursor:pointer;}
+  .card .swatch{width:100%;aspect-ratio:4/5;overflow:hidden;transition:transform .25s ease;}
+  .card .swatch img{width:100%;height:100%;object-fit:cover;}
+  .card:hover .swatch{transform:translateY(-4px);}
+  .card .name{font-weight:600;font-size:14px;margin-top:14px;}
+  .card .price{font-size:13.5px;color:var(--muted);margin-top:3px;}
+
+  /* ---------------- Mobile bottom app bar (5 tabs) ---------------- */
+  .bottombar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:90;background:var(--olive);
+    padding:14px 8px calc(14px + env(safe-area-inset-bottom));
+    grid-template-columns:repeat(5,1fr);align-items:center;justify-items:center;}
+  .bottombar button, .bottombar a{background:none;border:0;cursor:pointer;padding:6px 8px;display:grid;place-items:center;position:relative;color:#F2EEE4;}
+  .bottombar img{height:24px;width:auto;}
+  .bottombar .bird img{height:26px;}
+  .bottombar .cart-count{position:absolute;top:-2px;right:2px;}
+
+  /* ---------------- Mobile drawer (drill-down) ---------------- */
+  .drawer{position:fixed;inset:0;z-index:200;background:var(--cream);transform:translateY(100%);
+    transition:transform .32s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+  .drawer.open{transform:none;}
+  .drawer-top{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--line);}
+  .drawer-top .wordmark{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--olive);font-weight:600;}
+  .drawer-top .x{background:none;border:0;font-size:26px;line-height:1;cursor:pointer;color:var(--ink);}
+  .drawer-body{position:relative;flex:1;overflow:hidden;}
+  .pane{position:absolute;inset:0;overflow-y:auto;background:var(--cream);transform:translateX(100%);
+    transition:transform .28s cubic-bezier(.4,0,.2,1);}
+  .pane.root{transform:none;}
+  .pane.open{transform:translateX(0);}
+  .pane-head{display:flex;align-items:center;gap:8px;padding:16px 22px;border-bottom:1px solid var(--line);
+    font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--olive);font-weight:600;}
+  .pane-head .back{background:none;border:0;cursor:pointer;font-size:20px;color:var(--ink);padding:0 4px 0 0;line-height:1;}
+  .pane ul{list-style:none;margin:0;padding:6px 0 90px;}
+  .pane li>a,.pane li>button{width:100%;text-align:left;background:none;border:0;cursor:pointer;
+    display:flex;align-items:center;justify-content:space-between;padding:16px 22px;font-size:17px;color:var(--ink);
+    border-bottom:1px solid rgba(224,215,197,.55);font-family:var(--sans);}
+  .pane li>button .c{color:var(--muted);font-size:18px;}
+  .pane li.lbl{padding:22px 22px 6px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
+  /* linked category headers (Soap, Face, …) — tap through to the hub collection */
+  .pane li.lbl:has(a){padding:24px 22px 10px;}
+  .pane li.lbl>a{display:flex;align-items:center;justify-content:flex-start;width:100%;
+    padding:0;margin:0;border:0;background:none;
+    font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--olive);}
+  .pane li.lbl>a::after{content:"→";margin-left:auto;padding-left:12px;
+    font-weight:500;font-size:15px;letter-spacing:0;color:var(--olive);opacity:.5;
+    transition:transform .2s ease,opacity .2s ease;}
+  .pane li.lbl>a:active::after{transform:translateX(3px);opacity:1;}
+  .pane li.sect{padding:26px 22px 10px;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:var(--olive);font-weight:700;border-bottom:1px solid var(--line);}
+
+  /* mobile featured tiles (top of drawer) */
+  .m-tiles{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;
+    padding:16px 22px 18px;border-bottom:1px solid var(--line);scrollbar-width:none;}
+  .m-tiles::-webkit-scrollbar{display:none;}
+  .m-tile{position:relative;flex:0 0 47%;max-width:212px;aspect-ratio:1;overflow:hidden;
+    background:var(--cream-2);scroll-snap-align:start;}
+  .m-tile img{width:100%;height:100%;object-fit:cover;}
+  .m-tile .ed-cap{padding:13px 13px 14px;gap:5px;}
+  .m-tile .ed-cap .t{font-size:15px;}
+
+  /* ---------------- Search overlay ---------------- */
+  .search-ov{position:fixed;inset:0 0 auto 0;z-index:210;background:var(--cream);border-bottom:1px solid var(--line);
+    padding:18px 20px;display:none;align-items:center;gap:12px;}
+  .search-ov.open{display:flex;}
+  .search-ov input{flex:1;border:0;border-bottom:1px solid var(--olive);background:none;font-family:var(--sans);
+    font-size:17px;padding:8px 2px;color:var(--ink);outline:none;}
+  .search-ov .x{background:none;border:0;font-size:24px;cursor:pointer;color:var(--ink);}
+
+  /* ---------------- Responsive ---------------- */
+  @media (max-width:1340px){
+    .mega.shop .m-imgs{display:none;}
+    .mega.shop .mega-inner{grid-template-columns:auto auto;}
+  }
+  @media (max-width:1180px){
+    .mega.discover .m-imgs .ed-img:nth-child(2){display:none;}
+    .cat-groups{gap:28px;}
+    .cat-col{min-width:132px;gap:26px;}
+    .mega.shop .mega-inner{column-gap:32px;}
+    .mega.discover .mega-inner{column-gap:32px;}
+  }
+  @media (max-width:900px){
+    .announce, header.desk{display:none;}
+    .bottombar{display:grid;}
+    .wrap{padding:14px 14px 0;}
+    .hero-img{height:62vh;max-height:520px;}
+    .hero .logo{width:58vw;top:18px;left:16px;}
+    .grid{grid-template-columns:repeat(2,1fr);gap:22px 16px;padding:30px 14px 0;}
+    main{padding-bottom:108px;}
+  }
+  @media (min-width:901px){ .bottombar,.drawer,.search-ov{display:none !important;} }
+</style>
+</head>
+<body>
+
+  <div class="announce">Free Shipping Over $60 CAD</div>
+
+  <!-- ============ DESKTOP HEADER ============ -->
+  <header class="desk">
+    <div class="bar">
+
+      <nav class="nav" aria-label="Primary">
+        <div class="navitem has-mega">
+          <a class="navlink" href="/collections/all" aria-haspopup="true" aria-expanded="false">Shop
+            <svg class="chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
+          </a>
+          <div class="mega shop">
+            <div class="mega-inner">
+
+              <div class="col1">
+                <div class="quicklinks">
+                  <a href="/collections/best-sellers">Best Sellers</a>
+                  <a href="/collections/new">New In</a>
+                  <a href="/collections/limited-edition">Limited Edition</a>
+                  <a href="/collections/rocky-reserve">Rocky Reserve</a>
+                </div>
+              </div>
+
+              <div class="cat-groups">
+                <div class="cat-col">
+                  <div class="cat-group"><h5><a href="/collections/natural-soap">Soap</a></h5><ul>
+                    <li><a href="/collections/natural-bar-soap">Bar Soap</a></li>
+                    <li><a href="/collections/body-wash">Everything Wash</a></li>
+                    <li><a href="/collections/refill">Refills</a></li>
+                    <li><a href="/collections/soap-slabs">Slabs</a></li>
+                  </ul></div>
+                  <div class="cat-group"><h5><a href="/collections/skincare">Face</a></h5><ul>
+                    <li><a href="/collections/facial-cleanser">Cleanser</a></li>
+                    <li><a href="/collections/facial-toner">Toner</a></li>
+                    <li><a href="/collections/face-serum">Serum</a></li>
+                    <li><a href="/collections/face-moisturizers">Moisturizer</a></li>
+                    <li><a href="/collections/lip-care">Lip Care</a></li>
+                  </ul></div>
+                </div>
+                <div class="cat-col">
+                  <div class="cat-group"><h5><a href="/collections/natural-hair-care">Hair</a></h5><ul>
+                    <li><a href="/collections/natural-shampoo">Shampoo</a></li>
+                    <li><a href="/collections/conditioner">Conditioner</a></li>
+                    <li><a href="/collections/hair-bars">Hair Bars</a></li>
+                  </ul></div>
+                  <div class="cat-group"><h5><a href="/collections/body-care">Body</a></h5><ul>
+                    <li><a href="/collections/body-lotion">Body Lotion</a></li>
+                    <li><a href="/collections/body-oil">Body Oil</a></li>
+                    <li><a href="/collections/natural-deodorant">Deodorant</a></li>
+                    <li><a href="/collections/body-exfoliation">Exfoliation</a></li>
+                    <li><a href="/collections/hand-care">Hand &amp; Foot Care</a></li>
+                    <li><a href="/collections/sun-care">Sun Care</a></li>
+                  </ul></div>
+                </div>
+                <div class="cat-col">
+                  <div class="cat-group"><h5><a href="/collections/bath-shower">Bath</a></h5><ul>
+                    <li><a href="/collections/bath-bombs">Bath Bombs</a></li>
+                    <li><a href="/collections/bubble-bath">Bubble Bath &amp; Salts</a></li>
+                    <li><a href="/collections/candles">Candles</a></li>
+                  </ul></div>
+                  <div class="cat-group"><h5>Gifts</h5><ul>
+                    <li><a href="/collections/gift-sets-and-cards">Gift Sets</a></li>
+                    <li><a href="/collections/bundles">Bundles</a></li>
+                    <li><a href="/products/gift-card">E-Gift Card</a></li>
+                    <li><a href="/pages/subscription">Subscriptions</a></li>
+                  </ul></div>
+                  <div class="cat-group"><h5>More</h5><ul>
+                    <li><a href="/collections/baby-kids">Baby &amp; Kids</a></li>
+                    <li><a href="/collections/travel">Travel</a></li>
+                    <li><a href="/collections/accessories">Accessories</a></li>
+                    <li><a href="/collections/hotel-essentials">Hotel Essentials</a></li>
+                  </ul></div>
+                </div>
+              </div>
+
+              <div class="m-imgs">
+                <a class="ed-img" href="/collections/new">
+                  <img src="tiles/Image.png" alt="" />
+                  <span class="ed-cap"><span class="t">Fresh Arrivals</span><span class="c">Shop New</span></span>
+                </a>
+                <a class="ed-img" href="/collections/rocky-reserve">
+                  <img src="tiles/Rectangle%20819.png" alt="" />
+                  <span class="ed-cap"><span class="t">Rocky Reserve</span><span class="c">Discover</span></span>
+                </a>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="navitem has-mega">
+          <a class="navlink" href="/journal" aria-haspopup="true" aria-expanded="false">Discover
+            <svg class="chev" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9l6 6 6-6"/></svg>
+          </a>
+          <div class="mega discover">
+            <div class="mega-inner">
+              <div class="m-col">
+                <a href="/pages/natural">Our Natural Standards</a>
+                <a href="/journal">The Journal</a>
+                <a href="/pages/naturalpedia">Naturalpedia</a>
+                <a href="/pages/about-us">Our History</a>
+                <a href="/pages/sustainability">Sustainability &amp; Community</a>
+                <a href="/pages/store-locator">Find a Store</a>
+              </div>
+              <div class="m-imgs">
+                <a class="ed-img" href="/pages/natural">
+                  <img src="tiles/Image.png" alt="" />
+                  <span class="ed-cap"><span class="t">What Natural Means</span><span class="c">Explore</span></span>
+                </a>
+                <a class="ed-img" href="/journal">
+                  <img src="tiles/Image-3.png" alt="" />
+                  <span class="ed-cap"><span class="t">The Rocky Journal</span><span class="c">Read</span></span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="nav-right">
+        <button class="region" aria-label="Region">Canada / CAD
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <a class="util-link" href="/pages/subscription">Subscribe</a>
+        <div class="icons">
+          <button class="ico" id="searchBtn" aria-label="Search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          </button>
+          <a class="ico" href="/account/" aria-label="Account">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+          </a>
+          <a class="ico" href="#cart" aria-label="Cart, 2 items">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 7h12l-1 13H7L6 7z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+            <span class="cart-count">2</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ============ PLP CONTENT (logo on hero) ============ -->
+  <main>
+    <div class="wrap">
+      <section class="hero">
+        <img class="hero-img" src="Image.png" alt="Rocky Mountain Soap bars" />
+        <img class="logo" src="Rocky%20Logo.png" alt="Rocky" />
+      </section>
+      <div class="caption">
+        <div class="name">Product Name</div>
+        <div class="price">$XX CAD</div>
+      </div>
+    </div>
+
+    <section class="grid">
+      <a class="card" href="#"><div class="swatch"><img src="tiles/Image-1.png" alt="" /></div><div class="name">Product Name</div><div class="price">$XX CAD</div></a>
+      <a class="card" href="#"><div class="swatch"><img src="tiles/Image-2.png" alt="" /></div><div class="name">Product Name</div><div class="price">$XX CAD</div></a>
+      <a class="card" href="#"><div class="swatch"><img src="tiles/Image-3.png" alt="" /></div><div class="name">Product Name</div><div class="price">$XX CAD</div></a>
+      <a class="card" href="#"><div class="swatch"><img src="tiles/Image.png" alt="" /></div><div class="name">Product Name</div><div class="price">$XX CAD</div></a>
+      <a class="card" href="#"><div class="swatch"><img src="tiles/Rectangle%20819.png" alt="" /></div><div class="name">Product Name</div><div class="price">$XX CAD</div></a>
+      <a class="card" href="#"><div class="swatch"><img src="tiles/Image-2.png" alt="" /></div><div class="name">Product Name</div><div class="price">$XX CAD</div></a>
+      <a class="card" href="#"><div class="swatch"><img src="tiles/Image-3.png" alt="" /></div><div class="name">Product Name</div><div class="price">$XX CAD</div></a>
+      <a class="card" href="#"><div class="swatch"><img src="tiles/Image-1.png" alt="" /></div><div class="name">Product Name</div><div class="price">$XX CAD</div></a>
+    </section>
+  </main>
+
+  <!-- ============ MOBILE BOTTOM APP BAR (5 tabs) ============ -->
+  <nav class="bottombar" aria-label="Mobile">
+    <button id="menuBtn" aria-label="Menu"><img src="Icon%20Menu.svg" alt="Menu" /></button>
+    <button id="searchBtnM" aria-label="Search"><img src="Icon%20Search.svg" alt="Search" /></button>
+    <button class="bird" aria-label="Home" onclick="window.scrollTo({top:0,behavior:'smooth'})"><img src="Icon%20Bird.svg" alt="Rocky" /></button>
+    <a href="/account/" aria-label="Account">
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#F2EEE4" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+    </a>
+    <button class="cart" aria-label="Cart, 2 items"><img src="Icon%20Bag.svg" alt="Cart" /><span class="cart-count">2</span></button>
+  </nav>
+
+  <!-- ============ SEARCH OVERLAY ============ -->
+  <div class="search-ov" id="searchOv">
+    <input type="search" placeholder="Search products…" aria-label="Search" />
+    <button class="x" id="searchClose" aria-label="Close">&times;</button>
+  </div>
+
+  <!-- ============ MOBILE DRAWER (drill-down) ============ -->
+  <div class="drawer" id="drawer">
+    <div class="drawer-top">
+      <span class="wordmark">Rocky Mountain Soap</span>
+      <button class="x" id="drawerClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="drawer-body">
+
+      <div class="pane root">
+        <div class="m-tiles">
+          <a class="m-tile" href="/collections/new"><img src="tiles/Image.png" alt="" /><span class="ed-cap"><span class="t">Fresh Arrivals</span><span class="c">Shop New</span></span></a>
+          <a class="m-tile" href="/collections/best-sellers"><img src="tiles/Image-1.png" alt="" /><span class="ed-cap"><span class="t">Most-Loved</span><span class="c">Shop Now</span></span></a>
+          <a class="m-tile" href="/collections/rocky-reserve"><img src="tiles/Rectangle%20819.png" alt="" /><span class="ed-cap"><span class="t">Rocky Reserve</span><span class="c">Discover</span></span></a>
+          <a class="m-tile" href="/collections/gift-sets-and-cards"><img src="tiles/Image-2.png" alt="" /><span class="ed-cap"><span class="t">Gift Sets</span><span class="c">Shop Gifts</span></span></a>
+        </div>
+        <ul>
+          <li><button data-pane="p-discover">Discover <span class="c">›</span></button></li>
+          <li class="sect">Shop</li>
+          <li><a href="/collections/best-sellers">Best Sellers</a></li>
+          <li><a href="/collections/new">New In</a></li>
+          <li><a href="/collections/limited-edition">Limited Edition</a></li>
+          <li><a href="/collections/rocky-reserve">Rocky Reserve</a></li>
+          <li class="lbl"><a href="/collections/natural-soap">Soap</a></li>
+          <li><a href="/collections/natural-bar-soap">Bar Soap</a></li>
+          <li><a href="/collections/body-wash">Everything Wash</a></li>
+          <li><a href="/collections/refill">Refills</a></li>
+          <li><a href="/collections/soap-slabs">Slabs</a></li>
+          <li class="lbl"><a href="/collections/skincare">Face</a></li>
+          <li><a href="/collections/facial-cleanser">Cleanser</a></li>
+          <li><a href="/collections/facial-toner">Toner</a></li>
+          <li><a href="/collections/face-serum">Serum</a></li>
+          <li><a href="/collections/face-moisturizers">Moisturizer</a></li>
+          <li><a href="/collections/lip-care">Lip Care</a></li>
+          <li class="lbl"><a href="/collections/natural-hair-care">Hair</a></li>
+          <li><a href="/collections/natural-shampoo">Shampoo</a></li>
+          <li><a href="/collections/conditioner">Conditioner</a></li>
+          <li><a href="/collections/hair-bars">Hair Bars</a></li>
+          <li class="lbl"><a href="/collections/body-care">Body</a></li>
+          <li><a href="/collections/body-lotion">Body Lotion</a></li>
+          <li><a href="/collections/body-oil">Body Oil</a></li>
+          <li><a href="/collections/natural-deodorant">Deodorant</a></li>
+          <li><a href="/collections/body-exfoliation">Exfoliation</a></li>
+          <li><a href="/collections/hand-care">Hand &amp; Foot Care</a></li>
+          <li><a href="/collections/sun-care">Sun Care</a></li>
+          <li class="lbl"><a href="/collections/bath-shower">Bath</a></li>
+          <li><a href="/collections/bath-bombs">Bath Bombs</a></li>
+          <li><a href="/collections/bubble-bath">Bubble Bath &amp; Salts</a></li>
+          <li><a href="/collections/candles">Candles</a></li>
+          <li class="lbl">Gifts</li>
+          <li><a href="/collections/gift-sets-and-cards">Gift Sets</a></li>
+          <li><a href="/collections/bundles">Bundles</a></li>
+          <li><a href="/products/gift-card">E-Gift Card</a></li>
+          <li><a href="/pages/subscription">Subscriptions</a></li>
+          <li class="lbl">More</li>
+          <li><a href="/collections/baby-kids">Baby &amp; Kids</a></li>
+          <li><a href="/collections/travel">Travel</a></li>
+          <li><a href="/collections/accessories">Accessories</a></li>
+          <li><a href="/collections/hotel-essentials">Hotel Essentials</a></li>
+
+          <li class="sect">Account</li>
+          <li><a href="/account/">Sign In / Account</a></li>
+          <li><a href="/pages/subscription">Subscribe</a></li>
+          <li><a href="#">Canada / CAD</a></li>
+        </ul>
+      </div>
+
+      <div class="pane" id="p-discover">
+        <div class="pane-head"><button class="back" aria-label="Back">‹</button> Discover</div>
+        <ul>
+          <li><a href="/pages/natural">Our Natural Standards</a></li>
+          <li><a href="/journal">The Journal</a></li>
+          <li><a href="/pages/naturalpedia">Naturalpedia</a></li>
+          <li><a href="/pages/about-us">Our History</a></li>
+          <li><a href="/pages/sustainability">Sustainability &amp; Community</a></li>
+          <li><a href="/pages/store-locator">Find a Store</a></li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  (function(){
+    var body = document.body;
+    var drawer = document.getElementById('drawer');
+    var panes  = drawer.querySelectorAll('.pane:not(.root)');
+    var zc = 10;
+    function resetPanes(){ panes.forEach(function(p){ p.classList.remove('open'); p.style.zIndex=''; }); zc = 10; }
+
+    function openDrawer(){ drawer.classList.add('open'); body.classList.add('no-scroll'); }
+    function closeDrawer(){ drawer.classList.remove('open'); body.classList.remove('no-scroll'); setTimeout(resetPanes,340); }
+    document.getElementById('menuBtn').addEventListener('click', openDrawer);
+    document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+
+    // nested drill-down: each opened pane stacks above its parent
+    drawer.querySelectorAll('[data-pane]').forEach(function(b){
+      b.addEventListener('click', function(){ var p=document.getElementById(b.getAttribute('data-pane')); if(p){ p.style.zIndex=++zc; p.classList.add('open'); } });
+    });
+    drawer.querySelectorAll('.back').forEach(function(b){ b.addEventListener('click', function(){ b.closest('.pane').classList.remove('open'); }); });
+
+    // search overlay (with scroll lock)
+    var ov = document.getElementById('searchOv');
+    function openS(){ ov.classList.add('open'); body.classList.add('no-scroll'); ov.querySelector('input').focus(); }
+    function closeS(){ ov.classList.remove('open'); body.classList.remove('no-scroll'); }
+    document.getElementById('searchBtn').addEventListener('click', openS);
+    document.getElementById('searchBtnM').addEventListener('click', openS);
+    document.getElementById('searchClose').addEventListener('click', closeS);
+
+    // desktop mega: reflect open/closed state on the trigger (aria)
+    document.querySelectorAll('.navitem.has-mega').forEach(function(it){
+      var link = it.querySelector('.navlink');
+      function set(v){ if(link) link.setAttribute('aria-expanded', v); }
+      it.addEventListener('mouseenter', function(){ set('true'); });
+      it.addEventListener('mouseleave', function(){ set('false'); });
+      it.addEventListener('focusin', function(){ set('true'); });
+      it.addEventListener('focusout', function(){ set('false'); });
+    });
+
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeDrawer(); closeS(); } });
+  })();
+</script>
+</body>
+</html>
